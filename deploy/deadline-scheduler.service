@@ -1,0 +1,18 @@
+[Unit]
+Description=Deadline Bot - Daily Digest Scheduler
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/deadline_bot
+ExecStart=/opt/deadline_bot/.venv/bin/python scripts/run_scheduler.py
+Restart=on-failure
+RestartSec=5
+User=www-data
+Group=www-data
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
