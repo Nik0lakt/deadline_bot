@@ -40,7 +40,7 @@ async def task_create_group(message: types.Message, session: AsyncSession, confi
     except ParseError as e:
         return await message.reply(
             f"❌ {e}\nПример: `/task сделать лендинг до 20.11 @username`",
-            parse_mode="Markdown",
+            parse_mode="HTML",
         )
 
     # Создатель и чат
@@ -69,7 +69,7 @@ async def task_create_group(message: types.Message, session: AsyncSession, confi
         f"*Кому:* @{assignee.username if assignee.username else 'unknown'}\n"
         f"*Дедлайн:* {deadline_str}"
     )
-    await message.reply(resp, parse_mode="Markdown")
+    await message.reply(resp, parse_mode="HTML")
 
     # ЛС исполнителю (если он писал /start и у нас есть tg_id)
     if assignee.tg_id:
@@ -168,11 +168,11 @@ async def done_cmd(message: types.Message, session: AsyncSession, config: Config
     raw = (message.text or "").strip()
     parts = raw.split(maxsplit=1)
     if len(parts) < 2:
-        return await message.reply("Использование: `/done <id>`", parse_mode="Markdown")
+        return await message.reply("Использование: `/done <id>`", parse_mode="HTML")
     try:
         task_id = int(parts[1].strip())
     except ValueError:
-        return await message.reply("ID должен быть числом.", parse_mode="Markdown")
+        return await message.reply("ID должен быть числом.", parse_mode="HTML")
 
     closer = await upsert_user_from_tg(session, message.from_user)
     task, result = await mark_task_done(session, task_id=task_id, closer=closer, allow_creator_close=True)

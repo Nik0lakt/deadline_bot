@@ -30,7 +30,7 @@ async def start_private(message: types.Message, session: AsyncSession):
         "✅ Отметить выполненной: `/done 123`\n\n"
         "_Важно_: напишите мне `/start`, чтобы я мог присылать личные уведомления."
     )
-    await message.answer(text, reply_markup=main_menu_kb(), parse_mode="Markdown")
+    await message.answer(text, reply_markup=main_menu_kb(), parse_mode="HTML")
 
 @router.message(CommandStart(), F.chat.type.in_({"group", "supergroup"}))
 async def start_group(message: types.Message, session: AsyncSession):
@@ -43,7 +43,7 @@ async def start_group(message: types.Message, session: AsyncSession):
         "`/task сделать лендинг до 20.11 @username`\n\n"
         "Чтобы получать личные уведомления — участники должны написать мне `/start` в ЛС."
     )
-    await message.reply(text, parse_mode="Markdown")
+    await message.reply(text, parse_mode="HTML")
 
 @router.message(Command("help"))
 async def help_cmd(message: types.Message):
@@ -52,5 +52,5 @@ async def help_cmd(message: types.Message):
         "/task <что> до <дата> @username — создать задачу в чате\n"
         "/my, /today, /week, /overdue — смотреть задачи (в ЛС)\n"
         "/done <id> — отметить задачу выполненной",
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )

@@ -1,19 +1,18 @@
 import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.config import load_config
 from app.db.base import Base
-from app.db.session import build_session_maker
+# ВАЖНО: импортируем модели, чтобы они зарегистрировались в metadata
+from app.db import models  # noqa: F401
 
-async def _run():
-    config = load_config()
-    session_maker = build_session_maker(config.database_url)
-    async with session_maker() as session:
-        # Создаём таблицы через соединение движка
-        engine = session.get_bind()
-        assert engine is not None
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+async def main():
+    cfg = load_config()
+    engine = create_async_engine(cfg.database_url, echo=False, pool_pre_ping=True)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await engine.dispose()
     print("Таблицы успешно созданы.")
 
 if __name__ == "__main__":
-    asyncio.run(_run())
+    asyncio.run(main())

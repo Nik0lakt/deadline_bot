@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List
 
 from sqlalchemy import (
@@ -19,7 +19,8 @@ from .base import Base
 
 
 class User(Base):
-    """Пользователь Telegram (исполнитель/создатель задач)."""
+    __tablename__ = "users"  # 👈 явное имя
+
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, index=True, nullable=True)
     username: Mapped[Optional[str]] = mapped_column(String(255), index=True)
@@ -36,7 +37,8 @@ class User(Base):
 
 
 class Chat(Base):
-    """Групповой чат/канал/приват, из которого создаются задачи."""
+    __tablename__ = "chats"  # 👈 явное имя
+
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_chat_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
     title: Mapped[Optional[str]] = mapped_column(String(255))
@@ -47,18 +49,18 @@ class Chat(Base):
 
 
 class Task(Base):
-    """Задача с дедлайном."""
+    __tablename__ = "tasks"  # 👈 явное имя
+
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    chat_id: Mapped[int] = mapped_column(ForeignKey("chat.id", ondelete="RESTRICT"))
-    creator_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="RESTRICT"))
-    assignee_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="RESTRICT"))
+    chat_id: Mapped[int] = mapped_column(ForeignKey("chats.id", ondelete="RESTRICT"))
+    creator_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    assignee_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
 
     title: Mapped[str] = mapped_column(String(500))
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    # Для MVP используем дату без времени
-    deadline: Mapped[datetime.date] = mapped_column(Date, index=True)
+    deadline: Mapped[date] = mapped_column(Date, index=True)
 
     status: Mapped[str] = mapped_column(String(20), index=True, default="open")  # open/done/canceled
 
@@ -67,12 +69,11 @@ class Task(Base):
 
     origin_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
 
-    # relations
     chat: Mapped["Chat"] = relationship(back_populates="tasks")
     creator: Mapped["User"] = relationship(back_populates="tasks_created", foreign_keys=[creator_id])
     assignee: Mapped["User"] = relationship(back_populates="tasks_assigned", foreign_keys=[assignee_id])
 
     __table_args__ = (
-        Index("ix_tasks_assignee_status", "assignee_id", "status"),
-        Index("ix_tasks_deadline", "deadline"),
+        Index("tasks_assignee_status_idx", "assignee_id", "status"),
+        
     )
