@@ -65,9 +65,9 @@ async def task_create_group(message: types.Message, session: AsyncSession, confi
     deadline_str = data.deadline.strftime("%d.%m.%Y")
     resp = (
         f"✅ Задача #{task.id} создана\n"
-        f"*Что:* {task.title}\n"
-        f"*Кому:* @{assignee.username if assignee.username else 'unknown'}\n"
-        f"*Дедлайн:* {deadline_str}"
+        f"<b>Что:</b> {task.title}\n"
+        f"<b>Кому:</b> @{assignee.username if assignee.username else 'unknown'}\n"
+        f"<b>Дедлайн:</b> {deadline_str}"
     )
     await message.reply(resp, parse_mode="HTML")
 
